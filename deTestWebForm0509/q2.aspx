@@ -62,7 +62,12 @@
                 </FooterTemplate>
 
             </asp:Repeater>
-            <asp:Button runat="server" Text="回列表" OnClick="Unnamed1_Click"></asp:Button>
+            <asp:Button runat="server" Text="回列表" OnClick="Unnamed1_Click"></asp:Button><br/>
+            <asp:Label ID="Label1" runat="server" Text="Excel"></asp:Label>
+            <asp:Button ID="NpoiButton" runat="server" Text="NPOI" OnClick="NpoiButton_Click" /><br/>
+            <asp:Label ID="Label2" runat="server" Text="PDF"></asp:Label>
+            <asp:Button ID="iTextSharpButton" runat="server" Text="iTextSharp" />
+            <asp:Button ID="CrystalReportButton" runat="server" Text="Crystal Report" />
         </div>
     </form>
 </body>

@@ -1,11 +1,16 @@
-﻿using System;
+﻿using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlTypes;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Excel = Microsoft.Office.Interop.Excel;
+
 
 namespace deTestWebForm0509
 {
@@ -78,13 +83,14 @@ namespace deTestWebForm0509
 
         }
 
-       
+
 
         protected void Unnamed1_Click(object sender, EventArgs e)
         {
             Response.Redirect("q2.aspx");
         }
-        private string testID() {
+        private string testID()
+        {
             string sqlString = @"select * from [dbo].[deTestWebFormMember] where id = @K_id";
 
             List<ParamatsWithValueClass> paramatsWithValueClasses = new List<ParamatsWithValueClass>();
@@ -92,11 +98,11 @@ namespace deTestWebForm0509
             paramatsWithValueClasses.Add(new ParamatsWithValueClass() { key = "K_id", value = searchIDTextBox.Text });
 
             return new Unity().exeScalar(sqlString, paramatsWithValueClasses);
-            
+
         }
         protected void UpdateButton_Click(object sender, EventArgs e)
         {
-            if ( testID()== "0")
+            if (testID() == "0")
             {
                 searchIDResult.Text = "請正確輸入員編";
                 return;
@@ -137,9 +143,69 @@ namespace deTestWebForm0509
 
             paramatsWithValueClasses.Add(new ParamatsWithValueClass() { key = "K_id", value = searchIDTextBox.Text });
 
-            new Unity().exeNonQuery(sqlStringDelete,paramatsWithValueClasses);
+            new Unity().exeNonQuery(sqlStringDelete, paramatsWithValueClasses);
 
             Response.Redirect("q2.aspx");
         }
+
+        protected void NpoiButton_Click(object sender, EventArgs e)
+        {
+            Response.Clear();
+            Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            XSSFWorkbook workbook = new XSSFWorkbook();
+            ISheet u_sheet = workbook.CreateSheet("會員資料_Sheet1");
+            MemoryStream MS = new MemoryStream();
+            try
+            {
+
+                IRow u_row0 = u_sheet.CreateRow(0);
+                u_row0.CreateCell(0).SetCellValue("員編");
+                u_row0.CreateCell(1).SetCellValue("姓名");
+                u_row0.CreateCell(2).SetCellValue("性別");
+                u_row0.CreateCell(3).SetCellValue("電話");
+                u_row0.CreateCell(4).SetCellValue("住址");
+            
+                DataTable dt = new Unity().exeReader(@"select * from [dbo].[deTestWebFormMember]", null);
+
+                for (int i = 1; i <= dt.Rows.Count; i++)
+                {
+                    IRow u_row = u_sheet.CreateRow(i);
+                    for (int j = 0; j < dt.Columns.Count; j++)
+                    {
+                        u_row.CreateCell(j).SetCellValue(dt.Rows[i - 1][j].ToString());
+                    }
+                }
+
+                u_sheet.Header.Center = @"&F";
+                u_sheet.Header.Right = @"&D";
+                u_sheet.Footer.Center = @"&P";
+
+
+                workbook.Write(MS);
+
+             
+                Response.AddHeader("Content-Disposition", "attachment; filename=會員資料.xlsx");
+                Response.BinaryWrite(MS.ToArray());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return;
+            }
+            finally
+            {
+
+                //== 釋放資源
+                workbook = null;   //== VB為 Nothing
+                MS.Close();
+                MS.Dispose();
+
+                Response.Flush();
+                Response.End();
+            }
+        }
+
+      
+
     }
 }
