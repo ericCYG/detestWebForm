@@ -10,7 +10,11 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using Excel = Microsoft.Office.Interop.Excel;
-
+using iTextSharp.text.pdf;
+using iTextSharp.text;
+using Microsoft.Ajax.Utilities;
+using static NPOI.HSSF.Util.HSSFColor;
+using NPOI.SS.Formula.Functions;
 
 namespace deTestWebForm0509
 {
@@ -164,7 +168,7 @@ namespace deTestWebForm0509
                 u_row0.CreateCell(2).SetCellValue("性別");
                 u_row0.CreateCell(3).SetCellValue("電話");
                 u_row0.CreateCell(4).SetCellValue("住址");
-            
+
                 DataTable dt = new Unity().exeReader(@"select * from [dbo].[deTestWebFormMember]", null);
 
                 for (int i = 1; i <= dt.Rows.Count; i++)
@@ -183,7 +187,7 @@ namespace deTestWebForm0509
 
                 workbook.Write(MS);
 
-             
+
                 Response.AddHeader("Content-Disposition", "attachment; filename=會員資料.xlsx");
                 Response.BinaryWrite(MS.ToArray());
             }
@@ -205,7 +209,100 @@ namespace deTestWebForm0509
             }
         }
 
-      
+        protected void iTextSharpButton_Click(object sender, EventArgs e)
+        {
+            
+            DataTable dt = new Unity().exeReader(@"select * from [dbo].[deTestWebFormMember]", null);   //撈資料
 
+            using (MemoryStream stream = new MemoryStream())
+            {
+                // 字型設定==============vvv
+                BaseFont bfChinese = BaseFont.CreateFont(@"C:\WINDOWS\Fonts\kaiu.ttf", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
+                Font ChFont = new Font(bfChinese, 12);
+                //Font ChFont_blue = new Font(bfChinese, 40, Font.NORMAL, new BaseColor(51, 0, 153));
+                //Font ChFont_msg = new Font(bfChinese, 12, Font.ITALIC, BaseColor.RED);
+                //==========================^^^
+
+                Document doc = new Document(PageSize.A4);
+
+                PdfWriter writer = PdfWriter.GetInstance(doc, stream);
+                doc.Open();
+
+                var table1 = new PdfPTable(dt.Columns.Count);
+                //設置列寬比例=========================vvv
+                float[] a = new float[dt.Columns.Count];
+
+                for (int i = 0; i < a.Length; i++)
+                {
+                    a[i] = (float)Math.Ceiling((float)dt.Rows[0][i].ToString().Length / 2);
+                }
+                a[0]++;
+                table1.SetWidths(a);
+                //==================================^^^
+
+                table1.AddCell(new Phrase("員編", ChFont));
+                table1.AddCell(new Phrase("姓名", ChFont));
+                table1.AddCell(new Phrase("性別", ChFont));
+                table1.AddCell(new Phrase("電話", ChFont));
+                table1.AddCell(new Phrase("住址", ChFont));
+                table1.HeaderRows = 1;
+
+                foreach (DataRow item in dt.Rows)
+                {
+                    for (int i = 0; i < dt.Columns.Count; i++)
+                    {
+                        table1.AddCell(new Phrase(item[i].ToString(), ChFont));
+                    }
+
+                }
+                doc.AddHeader("rick", "會員資料");
+                doc.Add(table1);
+                doc.AddTitle("會員資料pdf測試");//文件標題
+                doc.AddAuthor("rick");//文件作者
+                doc.Close();
+
+                iTextSharp.text.Font blackFont = FontFactory.GetFont("Arial", 10, iTextSharp.text.Font.NORMAL, BaseColor.BLACK);
+                using (var ms2 = new MemoryStream())
+                {
+                    PdfReader reader = new PdfReader(stream.ToArray());
+                    using (PdfStamper stamper = new PdfStamper(reader, ms2))
+                    {
+                        int pages = reader.NumberOfPages;
+                        for (int i = 1; i <= pages; i++)
+                        {
+                            ColumnText.ShowTextAligned(stamper.GetUnderContent(i), Element.ALIGN_RIGHT, new Phrase(i.ToString(), blackFont), 568f, 15f, 0);
+                            ColumnText.ShowTextAligned(stamper.GetUnderContent(i), Element.ALIGN_RIGHT, new Phrase( DateTime.Now.ToShortDateString(), blackFont), 568f, 820f, 0);
+                            ColumnText.ShowTextAligned(stamper.GetUnderContent(i), Element.ALIGN_CENTER, new Phrase(@"會員資料", ChFont), 260f, 820f, 0);
+                        }
+                    }
+                    ms2.ToArray();
+                    Response.Clear();
+
+                    Response.OutputStream.Write(ms2.GetBuffer(), 0, ms2.GetBuffer().Length);
+                }
+
+
+                string filename = Server.UrlPathEncode("會員資料iTextSharp.pdf");
+
+                Response.AddHeader("Content-Disposition", "attachment; filename=" + filename);
+                Response.ContentType = "application/octet-stream";
+                //Response.ContentEncoding = System.Text.Encoding.UTF8;
+                Response.OutputStream.Flush();
+                Response.OutputStream.Close();
+                Response.Flush();
+                Response.End();
+            }
+        }
+
+        protected void CrystalReportButton_Click(object sender, EventArgs e)
+        {
+            this.Response.AddHeader("Content-Type", "application/pdf");
+            this.Response.AddHeader("Content-Disposition", "attachment; filename=SampleGuide.pdf");
+            this.Response.Flush();
+            //this.Response.BinaryWrite(documentContent);
+            //DocumentContent is a Byte[] of the data to be written in PDF
+            this.Response.Flush();
+            this.Response.End();
+        }
     }
 }

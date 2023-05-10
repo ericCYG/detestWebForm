@@ -66,8 +66,8 @@
             <asp:Label ID="Label1" runat="server" Text="Excel"></asp:Label>
             <asp:Button ID="NpoiButton" runat="server" Text="NPOI" OnClick="NpoiButton_Click" /><br/>
             <asp:Label ID="Label2" runat="server" Text="PDF"></asp:Label>
-            <asp:Button ID="iTextSharpButton" runat="server" Text="iTextSharp" />
-            <asp:Button ID="CrystalReportButton" runat="server" Text="Crystal Report" />
+            <asp:Button ID="iTextSharpButton" runat="server" Text="iTextSharp" OnClick="iTextSharpButton_Click" />
+            <asp:Button ID="CrystalReportButton" runat="server" Text="Crystal Report" OnClick="CrystalReportButton_Click" />
         </div>
     </form>
 </body>
