@@ -15,6 +15,7 @@ using iTextSharp.text;
 using Microsoft.Ajax.Utilities;
 using static NPOI.HSSF.Util.HSSFColor;
 using NPOI.SS.Formula.Functions;
+using ExcelDataReader;
 
 namespace deTestWebForm0509
 {
@@ -211,7 +212,7 @@ namespace deTestWebForm0509
 
         protected void iTextSharpButton_Click(object sender, EventArgs e)
         {
-            
+
             DataTable dt = new Unity().exeReader(@"select * from [dbo].[deTestWebFormMember]", null);   //撈資料
 
             using (MemoryStream stream = new MemoryStream())
@@ -271,7 +272,7 @@ namespace deTestWebForm0509
                         for (int i = 1; i <= pages; i++)
                         {
                             ColumnText.ShowTextAligned(stamper.GetUnderContent(i), Element.ALIGN_RIGHT, new Phrase(i.ToString(), blackFont), 568f, 15f, 0);
-                            ColumnText.ShowTextAligned(stamper.GetUnderContent(i), Element.ALIGN_RIGHT, new Phrase( DateTime.Now.ToShortDateString(), blackFont), 568f, 820f, 0);
+                            ColumnText.ShowTextAligned(stamper.GetUnderContent(i), Element.ALIGN_RIGHT, new Phrase(DateTime.Now.ToShortDateString(), blackFont), 568f, 820f, 0);
                             ColumnText.ShowTextAligned(stamper.GetUnderContent(i), Element.ALIGN_CENTER, new Phrase(@"會員資料", ChFont), 260f, 820f, 0);
                         }
                     }
@@ -294,15 +295,149 @@ namespace deTestWebForm0509
             }
         }
 
-        protected void CrystalReportButton_Click(object sender, EventArgs e)
+        protected void ExcelImputButton_Click(object sender, EventArgs e)
         {
-            this.Response.AddHeader("Content-Type", "application/pdf");
-            this.Response.AddHeader("Content-Disposition", "attachment; filename=SampleGuide.pdf");
-            this.Response.Flush();
-            //this.Response.BinaryWrite(documentContent);
-            //DocumentContent is a Byte[] of the data to be written in PDF
-            this.Response.Flush();
-            this.Response.End();
+            // ref : https://exceldatareader.codeplex.com/
+            // ref : https://github.com/ExcelDataReader/ExcelDataReader
+            // ref : https://ithelp.ithome.com.tw/articles/10048933
+
+            if (ExcelImputFileUpload.HasFile)
+            {
+                //string fd = (string)ConfigurationManager.AppSettings["SaveTempDir"] + "\\";
+                //if (!System.IO.Directory.Exists(fd))
+                //{
+                //    System.IO.Directory.CreateDirectory(fd);
+                //}
+                string extFileName = System.IO.Path.GetExtension(ExcelImputFileUpload.FileName).ToLower();
+                if ((extFileName != ".xls") && (extFileName != ".xlsx") && (extFileName != ".csv"))
+                {
+                    ExcelImputWranningLabel.Text = "請上傳副檔名.xls或.xlsx檔案";
+                    //ScriptManager.RegisterStartupScript(this, GetType(), "Popup1", "erroralert('" + "請上傳副檔名.xlsx檔案！" + "');", true);
+                    return;
+                }
+                //string FileName = fd + System.IO.Path.GetExtension(FileUpload1.FileName).ToLower();
+                //=
+                string mainFileName = Path.GetFileNameWithoutExtension(ExcelImputFileUpload.FileName);
+                //string fileName = @"D:\\Production\\TempImageFiles\\" + mainFileName + "-" + DateTime.Now.ToString("-yyyy-MM-dd HH-mm-ss") + extFileName;
+                string fileName = Server.MapPath(ExcelImputFileUpload.FileName);
+                ExcelImputFileUpload.SaveAs(fileName);
+                //=
+
+
+                using (var stream = File.Open(fileName, FileMode.Open, FileAccess.Read))
+                {
+                    // Auto-detect format, supports:
+                    //  - Binary Excel files (2.0-2003 format; *.xls)
+                    //  - OpenXml Excel files (2007 format; *.xlsx)
+                    //using (IExcelDataReader reader = ExcelReaderFactory.CreateCsvReader(stream))  // 支援 .csv，下面還有地方要改
+                    //using (IExcelDataReader reader = ExcelReaderFactory.CreateOpenXmlReader(stream))    // 僅支援 .xlsx，不支援 .xls
+                    using (var reader = ExcelReaderFactory.CreateReader(stream))    // 僅支援 .xls 和 .xlsx，不支援 .csv
+                    {
+                        // 3種方法選一種就好
+
+                        // 1. Use the reader methods
+                        //do
+                        //{
+                        //    // 逐列讀取
+                        //    while (reader.Read())
+                        //    {
+                        //        // reader.GetDouble(0);
+                        //        // 會包含第一列 (可能是標題，而非資料)
+                        //        // 或設定 excelReader.IsFirstRowAsColumnNames = true; 去避免
+
+                        //        //string columnData0 = reader[0].ToString();   // 讀取該列第0欄位
+                        //        //string columnData1 = reader[1].ToString();   // 讀取該列第1欄位
+                        //    }
+                        //} while (reader.NextResult());
+                        // ----------------------------------------
+                        // 2. Use the AsDataSet extension method
+                        // The result of each spreadsheet is in result.Tables
+                        // NuGet 要安裝 ExcelDataReader.DataSet
+                        var result = reader.AsDataSet().Tables[0];
+                        //DataRowCollection dataRow = result.Tables[0].Rows;
+                        //DataColumnCollection dataColumn = result.Tables[0].Columns;
+                        // Print the ColumnName and DataType for each column.
+                        //foreach (DataColumn column in dataColumn)
+                        //{
+                        //    string columnName = column.ColumnName;
+                        //    string columnDataType = column.DataType.ToString();
+                        //}
+                        //foreach (DataRow row in dataRow)
+                        //{
+                        //    // 會包含第一列 (可能是標題，而非資料)
+                        //    string columnData0 = reader[0].ToString();   // 讀取該列第0欄位
+                        //    string columnData1 = reader[1].ToString();   // 讀取該列第1欄位
+                        //}
+
+                        //foreach (DataTable _table in result.Tables)
+                        //{
+                        //    for (int i = 0; i < _table.Columns.Count; i++)
+                        //    {
+                        //        string columnName = _table.Columns[i].ColumnName.PadRight(_table.Columns[i].ColumnName.Length + 2, Convert.ToChar(" "));
+                        //    }
+                        //    foreach (DataRow _row in _table.Rows)
+                        //    {
+                        //        for (int i = 0; i < _table.Columns.Count; i++)
+                        //        {
+                        //            string columnData = _row[i].ToString().Trim().PadRight(_table.Columns[i].ColumnName.Length + 2, Convert.ToChar(" "));
+                        //        }
+                        //    }
+                        //}
+                        // ----------------------------------------
+                        // 3. 讀取放入 GridView1
+                        result.Rows.RemoveAt(0);
+                        result.Columns[0].ColumnName = "id";
+                        result.Columns[1].ColumnName = "name";
+                        result.Columns[2].ColumnName = "sex";
+                        result.Columns[3].ColumnName = "phone";
+                        result.Columns[4].ColumnName = "address";
+                        Repeater2.DataSource = result;
+                        Repeater2.DataBind();
+                    }
+                } // using
+            }
         }
+
+        protected void csvImputButton_Click(object sender, EventArgs e)
+        {
+
+            if (csvImputFileUpload.HasFile)
+            {
+
+                string extFileName = System.IO.Path.GetExtension(csvImputFileUpload.FileName).ToLower();
+                if ((extFileName != ".csv"))
+                {
+                    ExcelImputWranningLabel.Text = "請上傳副檔名.csv檔案";
+
+                    return;
+                }
+
+                //string mainFileName = Path.GetFileNameWithoutExtension(csvImputFileUpload.FileName);
+
+                string fileName = Server.MapPath(csvImputFileUpload.FileName);
+                csvImputFileUpload.SaveAs(fileName);
+
+                using (var stream = File.Open(fileName, FileMode.Open, FileAccess.Read))
+                {
+
+                    using (IExcelDataReader reader = ExcelReaderFactory.CreateCsvReader(stream))
+
+                    {
+             
+                        var result = reader.AsDataSet().Tables[0];
+
+                        result.Rows.RemoveAt(0);
+                        result.Columns[0].ColumnName = "id";
+                        result.Columns[1].ColumnName = "name";
+                        result.Columns[2].ColumnName = "sex";
+                        result.Columns[3].ColumnName = "phone";
+                        result.Columns[4].ColumnName = "address";
+                        Repeater2.DataSource = result;
+                        Repeater2.DataBind();
+                    }
+                }
+            }
+        }
+
     }
 }

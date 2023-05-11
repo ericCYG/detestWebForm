@@ -66,8 +66,46 @@
             <asp:Label ID="Label1" runat="server" Text="Excel"></asp:Label>
             <asp:Button ID="NpoiButton" runat="server" Text="NPOI" OnClick="NpoiButton_Click" /><br/>
             <asp:Label ID="Label2" runat="server" Text="PDF"></asp:Label>
-            <asp:Button ID="iTextSharpButton" runat="server" Text="iTextSharp" OnClick="iTextSharpButton_Click" />
-            <asp:Button ID="CrystalReportButton" runat="server" Text="Crystal Report" OnClick="CrystalReportButton_Click" />
+            <asp:Button ID="iTextSharpButton" runat="server" Text="iTextSharp" OnClick="iTextSharpButton_Click" /><br /><br />
+
+            <asp:FileUpload ID="ExcelImputFileUpload" runat="server" accept=".xls,.xlsx"  />
+            <asp:Button ID="ExcelImputButton" runat="server" Text="Excel匯入" OnClick="ExcelImputButton_Click" /><br />
+
+            <asp:FileUpload ID="csvImputFileUpload" runat="server" accept=".csv"  />
+            <asp:Button ID="csvImputButton" runat="server" Text="csv匯入" OnClick="csvImputButton_Click" /><br />
+
+            <asp:Label ID="ExcelImputWranningLabel" runat="server" Text="--"></asp:Label>
+
+             <asp:Repeater ID="Repeater2" runat="server">
+
+                <HeaderTemplate>
+                    <table id="customers">
+                        <thead>
+                            <tr>
+                                <th>員編</th>
+                                <th>姓名</th>
+                                <th>性別</th>
+                                <th>電話</th>
+                                <th>住址</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                </HeaderTemplate>
+                <ItemTemplate>
+                    <tr>
+                        <td><%# Eval(" id") %></td>
+                        <td><%# Eval(" name") %></td>
+                        <td><%# Eval(" sex") %></td>
+                        <td><%# Eval(" phone") %></td>
+                        <td><%# Eval(" address") %></td>
+                    </tr>
+                </ItemTemplate>
+                <FooterTemplate>
+                    </tbody>
+                    </table>
+                </FooterTemplate>
+
+            </asp:Repeater>
         </div>
     </form>
 </body>

@@ -204,12 +204,57 @@ namespace deTestWebForm0509
         protected global::System.Web.UI.WebControls.Button iTextSharpButton;
 
         /// <summary>
-        /// CrystalReportButton 控制項。
+        /// ExcelImputFileUpload 控制項。
         /// </summary>
         /// <remarks>
         /// 自動產生的欄位。
         /// 若要修改，請將欄位宣告從設計工具檔案移到程式碼後置檔案。
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button CrystalReportButton;
+        protected global::System.Web.UI.WebControls.FileUpload ExcelImputFileUpload;
+
+        /// <summary>
+        /// ExcelImputButton 控制項。
+        /// </summary>
+        /// <remarks>
+        /// 自動產生的欄位。
+        /// 若要修改，請將欄位宣告從設計工具檔案移到程式碼後置檔案。
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button ExcelImputButton;
+
+        /// <summary>
+        /// csvImputFileUpload 控制項。
+        /// </summary>
+        /// <remarks>
+        /// 自動產生的欄位。
+        /// 若要修改，請將欄位宣告從設計工具檔案移到程式碼後置檔案。
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.FileUpload csvImputFileUpload;
+
+        /// <summary>
+        /// csvImputButton 控制項。
+        /// </summary>
+        /// <remarks>
+        /// 自動產生的欄位。
+        /// 若要修改，請將欄位宣告從設計工具檔案移到程式碼後置檔案。
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button csvImputButton;
+
+        /// <summary>
+        /// ExcelImputWranningLabel 控制項。
+        /// </summary>
+        /// <remarks>
+        /// 自動產生的欄位。
+        /// 若要修改，請將欄位宣告從設計工具檔案移到程式碼後置檔案。
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label ExcelImputWranningLabel;
+
+        /// <summary>
+        /// Repeater2 控制項。
+        /// </summary>
+        /// <remarks>
+        /// 自動產生的欄位。
+        /// 若要修改，請將欄位宣告從設計工具檔案移到程式碼後置檔案。
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater Repeater2;
     }
 }
