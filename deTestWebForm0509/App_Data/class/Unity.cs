@@ -15,7 +15,7 @@ namespace deTestWebForm0509
         private SqlConnection GetSqlConnection()
         {
             return new SqlConnection(@"Data Source=(localdb)\mssqllocaldb;Initial Catalog=GSSWEB;Integrated Security=True");
-          
+
         }
 
         public int exeNonQuery(string sql, List<ParamatsWithValueClass> paramatsList)
@@ -48,7 +48,7 @@ namespace deTestWebForm0509
                 catch (Exception ex)
                 {
                     transactionMan.Rollback();
-                    Console.WriteLine(sql+ "。(前面為sql) exeNonQuery 失敗。(錯誤訊息) " + ex.Message);
+                    Console.WriteLine(sql + "。(前面為sql) exeNonQuery 失敗。(錯誤訊息) " + ex.Message);
                 }
                 finally
                 {
@@ -125,7 +125,7 @@ namespace deTestWebForm0509
                     }
                     sr = scomm.ExecuteReader();
                     schemaTable.Load(sr);
-                    sr.Close(); 
+                    sr.Close();
                     transactionMan.Commit();
                 }
                 catch (Exception ex)
@@ -137,7 +137,7 @@ namespace deTestWebForm0509
                     }
                     catch (Exception eex)
                     {
-                      
+
                         Console.WriteLine(sql + "。(前面為sql) exeReader Rollback 失敗。(錯誤訊息) " + eex.Message);
                         return null;
                     }
@@ -153,6 +153,30 @@ namespace deTestWebForm0509
             }
             return schemaTable;
         }
+
+        public void ImpotExcelCsv(DataTable dt)
+        {
+
+            string sqlString =
+                @"INSERT INTO [dbo].[deTestWebFormMember]
+                ([name] ,[sex]  ,[phone] ,[address])
+                VALUES
+                (@K_name ,@K_sex,@K_phone,@K_address)";
+
+            foreach (DataRow row in dt.Rows)
+            {
+
+                List<ParamatsWithValueClass> paramatsWithValueClasses = new List<ParamatsWithValueClass>();
+                paramatsWithValueClasses.Add(new ParamatsWithValueClass() { key = "K_name", value = row["name"].ToString() });
+                paramatsWithValueClasses.Add(new ParamatsWithValueClass() { key = "K_sex", value = row["sex"].ToString() });
+                paramatsWithValueClasses.Add(new ParamatsWithValueClass() { key = "K_phone", value = row["phone"].ToString() });
+                paramatsWithValueClasses.Add(new ParamatsWithValueClass() { key = "K_address", value = row["address"].ToString() });
+
+                new Unity().exeNonQuery(sqlString, paramatsWithValueClasses);
+            }
+
+        }
+
 
     }
 }

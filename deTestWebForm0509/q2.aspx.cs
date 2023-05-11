@@ -393,9 +393,14 @@ namespace deTestWebForm0509
                         result.Columns[4].ColumnName = "address";
                         Repeater2.DataSource = result;
                         Repeater2.DataBind();
+
+                        result.Columns.RemoveAt(0);
+                        new Unity().ImpotExcelCsv(result);
                     }
                 } // using
             }
+
+            Response.Redirect("q2.aspx");
         }
 
         protected void csvImputButton_Click(object sender, EventArgs e)
@@ -434,10 +439,21 @@ namespace deTestWebForm0509
                         result.Columns[4].ColumnName = "address";
                         Repeater2.DataSource = result;
                         Repeater2.DataBind();
+
+
+                        result.Columns.RemoveAt(0);
+                       new Unity().ImpotExcelCsv(result);
+
                     }
                 }
             }
+
+            Response.Redirect("q2.aspx");
+
         }
+
+        
+
 
     }
 }
