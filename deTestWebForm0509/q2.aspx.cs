@@ -23,6 +23,14 @@ namespace deTestWebForm0509
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (Unity.ExceptionWrong2 != "")
+            {
+                //ExcelImputWranningLabel.Text = Unity.ExceptionWrong;
+                //searchIDResult.Text = Unity.ExceptionWrong;
+                ExcelImputWranningLabel.Text = Unity.ExceptionWrong2;
+                //searchIDResult.Text = Unity.ExceptionWrong2;
+            }
+
             if (!IsPostBack)
             {
 
@@ -30,17 +38,19 @@ namespace deTestWebForm0509
                 Repeater1.DataBind();
             }
 
+         
         }
 
         protected void InsertButton_Click(object sender, EventArgs e)
         {
             string sqlString =
                 @"INSERT INTO [dbo].[deTestWebFormMember]
-                ([name] ,[sex]  ,[phone] ,[address])
+                ([id],[name] ,[sex]  ,[phone] ,[address])
                 VALUES
-                (@K_name ,@K_sex,@K_phone,@K_address)";
+                (@K_id,@K_name ,@K_sex,@K_phone,@K_address)";
 
             List<ParamatsWithValueClass> paramatsWithValueClasses = new List<ParamatsWithValueClass>();
+            paramatsWithValueClasses.Add(new ParamatsWithValueClass() { key = "K_id", value = idTextBox.Text });
             paramatsWithValueClasses.Add(new ParamatsWithValueClass() { key = "K_name", value = nameTextBox.Text });
             paramatsWithValueClasses.Add(new ParamatsWithValueClass() { key = "K_sex", value = sexTextBox.Text });
             paramatsWithValueClasses.Add(new ParamatsWithValueClass() { key = "K_phone", value = phoneTextBox.Text });
@@ -235,9 +245,10 @@ namespace deTestWebForm0509
 
                 for (int i = 0; i < a.Length; i++)
                 {
-                    a[i] = (float)Math.Ceiling((float)dt.Rows[0][i].ToString().Length / 2);
+                    a[i] = (float)Math.Ceiling((float)dt.Rows[0][i].ToString().Trim().Length / 2);
                 }
-                a[0]++;
+                //a[0]++;
+                a = new float[5]{ 1f,2f, 1f, 3f,7f}; //測試
                 table1.SetWidths(a);
                 //==================================^^^
 
@@ -394,7 +405,7 @@ namespace deTestWebForm0509
                         Repeater2.DataSource = result;
                         Repeater2.DataBind();
 
-                        result.Columns.RemoveAt(0);
+                        //result.Columns.RemoveAt(0);
                         new Unity().ImpotExcelCsv(result);
                     }
                 } // using
@@ -441,7 +452,7 @@ namespace deTestWebForm0509
                         Repeater2.DataBind();
 
 
-                        result.Columns.RemoveAt(0);
+                        //result.Columns.RemoveAt(0);
                        new Unity().ImpotExcelCsv(result);
 
                     }

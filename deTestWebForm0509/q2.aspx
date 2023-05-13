@@ -18,6 +18,7 @@
 <body>
     <form id="form1" runat="server">
         <div>
+              <asp:Label ID="idLabel" runat="server" Text="員編："></asp:Label><asp:TextBox ID="idTextBox" runat="server">0037</asp:TextBox><br />
             <asp:Label ID="nameLabel" runat="server" Text="姓名："></asp:Label><asp:TextBox ID="nameTextBox" runat="server">rick</asp:TextBox><br />
             <asp:Label ID="sexLabel" runat="server" Text="性別："></asp:Label><asp:TextBox ID="sexTextBox" runat="server">男</asp:TextBox><br />
             <asp:Label ID="phoneLabel" runat="server" Text="電話："></asp:Label><asp:TextBox ID="phoneTextBox" runat="server">0988777888</asp:TextBox><br />

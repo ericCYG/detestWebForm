@@ -1,5 +1,7 @@
-﻿using System;
+﻿using NPOI.OpenXmlFormats;
+using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
@@ -11,6 +13,8 @@ namespace deTestWebForm0509
     {
         string ConnectStr = "";
         string sqlStr = "";
+        public static string ExceptionWrong = "";
+        public static string ExceptionWrong2 = "";
 
         private SqlConnection GetSqlConnection()
         {
@@ -21,6 +25,7 @@ namespace deTestWebForm0509
         public int exeNonQuery(string sql, List<ParamatsWithValueClass> paramatsList)
         {
             int ifSuccess = -1;
+            ExceptionWrong = "";
 
             using (SqlConnection con = GetSqlConnection())
             {
@@ -48,7 +53,9 @@ namespace deTestWebForm0509
                 catch (Exception ex)
                 {
                     transactionMan.Rollback();
-                    Console.WriteLine(sql + "。(前面為sql) exeNonQuery 失敗。(錯誤訊息) " + ex.Message);
+
+                    ExceptionWrong = sql + "。(前面為sql) exeNonQuery 失敗。(錯誤訊息) " + ex.Message;
+                    Console.WriteLine(ExceptionWrong);
                 }
                 finally
                 {
@@ -61,7 +68,7 @@ namespace deTestWebForm0509
         }
         public string exeScalar(string sql, List<ParamatsWithValueClass> paramatsList)
         {
-
+            ExceptionWrong = "";
             string ifSuccess = "";
 
             using (SqlConnection con = GetSqlConnection())
@@ -91,7 +98,8 @@ namespace deTestWebForm0509
                 catch (Exception ex)
                 {
                     transactionMan.Rollback();
-                    Console.WriteLine(sql + "。(前面為sql) exeScalar 失敗。(錯誤訊息) " + ex.Message);
+                    ExceptionWrong = sql + "。(前面為sql) exeScalar 失敗。(錯誤訊息) " + ex.Message;
+                    Console.WriteLine(ExceptionWrong);
                 }
                 finally
                 {
@@ -104,7 +112,7 @@ namespace deTestWebForm0509
         }
         public DataTable exeReader(string sql, List<ParamatsWithValueClass> paramatsList)
         {
-
+            ExceptionWrong = "";
             DataTable schemaTable = new DataTable();
             using (SqlConnection con = GetSqlConnection())
             {
@@ -137,13 +145,13 @@ namespace deTestWebForm0509
                     }
                     catch (Exception eex)
                     {
-
-                        Console.WriteLine(sql + "。(前面為sql) exeReader Rollback 失敗。(錯誤訊息) " + eex.Message);
+                        ExceptionWrong = sql + "。(前面為sql) exeReader Rollback 失敗。(錯誤訊息) " + eex.Message;
+                        Console.WriteLine(ExceptionWrong);
                         return null;
                     }
 
-
-                    Console.WriteLine(sql + "。(前面為sql) exeReader 失敗。(錯誤訊息) " + ex.Message);
+                    ExceptionWrong = sql + "。(前面為sql) exeReader 失敗。(錯誤訊息) " + ex.Message;
+                    Console.WriteLine(ExceptionWrong);
                 }
                 finally
                 {
@@ -156,25 +164,58 @@ namespace deTestWebForm0509
 
         public void ImpotExcelCsv(DataTable dt)
         {
+            ExceptionWrong2 = "";
+            string showNo = "";
+            IEnumerable<DataRow> dtAll = new Unity().exeReader(@"select * from [dbo].[deTestWebFormMember]", null).AsEnumerable();
+            int count = 0;
+            List<string>  waitDelete = new List<string>();
 
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                if (dtAll.Any(_ => _.Field<string>("id").Trim() == dt.Rows[i]["id"].ToString()))
+                {
+                    waitDelete.Add(i.ToString());
+                    showNo += dt.Rows[i]["id"] + ",";
+                    count++;
+                }
+            }
+
+            //foreach (DataRow item in dt.Rows)
+            //{
+            //    if (dtAll.Any(_ => _.Field<string>("id").Trim() == item["id"].ToString()))
+            //    {
+
+            //        waitDelete.Rows.Add(item);
+            //    };
+            //}
+            waitDelete.Reverse();
+            foreach (string waitDeleteItem in waitDelete)
+            {
+
+                dt.Rows.RemoveAt(Convert.ToInt32( waitDeleteItem));
+            }
+            ExceptionWrong2 += "發現有 " + count + " 筆重覆" + showNo + "，已剔除。";
+            count = 0;
             string sqlString =
                 @"INSERT INTO [dbo].[deTestWebFormMember]
-                ([name] ,[sex]  ,[phone] ,[address])
+                ([id],[name] ,[sex]  ,[phone] ,[address])
                 VALUES
-                (@K_name ,@K_sex,@K_phone,@K_address)";
+                (@K_id,@K_name ,@K_sex,@K_phone,@K_address)";
 
             foreach (DataRow row in dt.Rows)
             {
 
                 List<ParamatsWithValueClass> paramatsWithValueClasses = new List<ParamatsWithValueClass>();
+                paramatsWithValueClasses.Add(new ParamatsWithValueClass() { key = "K_id", value = row["id"].ToString() });
                 paramatsWithValueClasses.Add(new ParamatsWithValueClass() { key = "K_name", value = row["name"].ToString() });
                 paramatsWithValueClasses.Add(new ParamatsWithValueClass() { key = "K_sex", value = row["sex"].ToString() });
                 paramatsWithValueClasses.Add(new ParamatsWithValueClass() { key = "K_phone", value = row["phone"].ToString() });
                 paramatsWithValueClasses.Add(new ParamatsWithValueClass() { key = "K_address", value = row["address"].ToString() });
 
                 new Unity().exeNonQuery(sqlString, paramatsWithValueClasses);
+                count++;
             }
-
+            ExceptionWrong2 += "成功加入了" + count + "筆";
         }
 
 
