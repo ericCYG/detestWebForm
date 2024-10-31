@@ -262,6 +262,7 @@
   <ItemGroup>
     <Compile Include="ajaxTest.aspx.cs">
       <DependentUpon>ajaxTest.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="ajaxTest.aspx.designer.cs">
       <DependentUpon>ajaxTest.aspx</DependentUpon>
