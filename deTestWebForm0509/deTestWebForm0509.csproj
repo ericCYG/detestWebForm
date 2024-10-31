@@ -201,6 +201,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="About.aspx" />
+    <Content Include="ajaxTest.aspx" />
     <Content Include="Contact.aspx" />
     <Content Include="Content\bootstrap-grid.css" />
     <Content Include="Content\bootstrap-grid.min.css" />
@@ -259,6 +260,13 @@
     <Content Include="Site.Mobile.Master" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ajaxTest.aspx.cs">
+      <DependentUpon>ajaxTest.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ajaxTest.aspx.designer.cs">
+      <DependentUpon>ajaxTest.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="App_Data\class\ajaxTestBodys.cs" />
     <Compile Include="App_Data\class\ParamatsWithValueClass.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="About.aspx.cs">
